@@ -25,6 +25,7 @@ public class Config extends Configuration {
     public int portMin;
     public int portMax;
     public String module;
+    public String proxyToken;
 
     public String getIngress() {
         return ingress;

@@ -20,7 +20,15 @@ package com.wire.bots.echo;
 
 import com.wire.bots.sdk.MessageHandlerBase;
 import com.wire.bots.sdk.Server;
+import com.wire.bots.sdk.tools.Logger;
+import com.wire.bots.sdk.tools.Util;
 import io.dropwizard.setup.Environment;
+import org.glassfish.tyrus.client.ClientManager;
+import org.glassfish.tyrus.client.ClientProperties;
+
+import javax.websocket.CloseReason;
+import javax.websocket.Session;
+import java.net.URI;
 
 public class Service extends Server<Config> {
     static Service instance;
@@ -37,5 +45,37 @@ public class Service extends Server<Config> {
     @Override
     protected MessageHandlerBase createHandler(Config config, Environment env) {
         return new MessageHandler();
+    }
+
+    @Override
+    protected void onRun(Config config, Environment env) {
+        addResource(new InboundResource(getClient()), env);
+
+        try {
+            ClientManager client = ClientManager.createClient();
+
+            client.getProperties().put(ClientProperties.RECONNECT_HANDLER, new ClientManager.ReconnectHandler() {
+                @Override
+                public boolean onDisconnect(CloseReason closeReason) {
+                    Logger.info("Websocket onDisconnect: reason: %s", closeReason.getCloseCode());
+                    return true;
+                }
+
+                @Override
+                public boolean onConnectFailure(Exception e) {
+                    Logger.warning("Websocket onConnectFailure: reason: %s", e);
+                    return true;
+                }
+            });
+
+            String wss = String.format("wss://services.%s/roman/await/%s", Util.getDomain(), config.proxyToken);
+            Endpoint endpoint = new Endpoint(getClient());
+
+            Session session = client.connectToServer(endpoint, new URI(wss));
+            Logger.info("Websocket connected: %s", session.getId());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

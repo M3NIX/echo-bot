@@ -3,8 +3,8 @@ server:
   rootPath: /echo/*
 
 # comment out these 2 lines in order to enable HTTP reqs logging
-#  requestLog:
-#    appenders: []
+  requestLog:
+    appenders: []
 
 # Log lever: INFO | DEBUG | ERROR
 logging:
@@ -12,7 +12,9 @@ logging:
   loggers:
     "com.wire.bots.logger": INFO
 
-auth: ${WIRE_ECHO_SERVICE_TOKEN}   # Service's auth token
+auth: ${SERVICE_TOKEN}   # Service's auth token
+
+proxyToken: ${PROXY_TOKEN}
 
 # Swagger documentation... useful sometimes
 swagger:
@@ -22,18 +24,25 @@ swagger:
     - http
     - https
 
+jerseyClient:
+  timeout: 20s
+  connectionTimeout: 4s
+  connectionRequestTimeout: 4s
+  keepAlive: 0ms
+  retries: 3
+
 # Calling stuff (optional)
 module: echo
 portMin: 32768
 portMax: 32867
 ingress: localhost
 
-#redis DB. Primary keys are stored here
+# Redis DB. Primary keys are stored there
 db:
-  host: localhost
   driver: redis
+  host: ${REDIS_HOST}
   port: 6379    #redis default port
-  password:
+  password: ${REDIS_PASSWORD}
 
 # To use file system as the storage use these settings
 #db:
