@@ -21,9 +21,10 @@ package com.wire.bots.echo;
 import com.wire.bots.sdk.MessageHandlerBase;
 import com.wire.bots.sdk.Server;
 import io.dropwizard.setup.Environment;
+import com.wire.bots.echo.resources.*;
 
 public class Service extends Server<Config> {
-    static Service instance;
+    public static Service instance;
 
     public static void main(String[] args) throws Exception {
         instance = new Service();
@@ -36,6 +37,11 @@ public class Service extends Server<Config> {
 
     @Override
     protected MessageHandlerBase createHandler(Config config, Environment env) {
-        return new MessageHandler();
+        return new MessageHandler(config);
+    }
+    @Override
+    protected void onRun(Config config, Environment env) {
+        addResource(new SimpleResource(repo), env);
+        addResource(new BroadcastResource(repo), env);
     }
 }

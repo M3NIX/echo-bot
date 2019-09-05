@@ -25,6 +25,8 @@ public class Config extends Configuration {
     public int portMin;
     public int portMax;
     public String module;
+    public String alertToken;
+    public String sqlitefile;
 
     public String getIngress() {
         return ingress;
@@ -40,6 +42,14 @@ public class Config extends Configuration {
 
     public String getModule() {
         return module;
+    }
+
+    public String getAlertToken(){
+        return alertToken;
+    }
+
+    public String getSQLiteFile(){
+      return sqlitefile;
     }
 
 }
