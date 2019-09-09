@@ -16,11 +16,11 @@ public class Database {
         this.conf = conf;
     }
 
-    boolean insertBot(UUID botId, UUID convId, String username) throws Exception {
+    boolean insertBot(UUID botId, UUID convId) throws Exception {
         try (Connection c = newConnection()) {
-            PreparedStatement stmt = c.prepareStatement("INSERT INTO Alert (botId, convId, username) VALUES (?, ?, ?)");
+            PreparedStatement stmt = c.prepareStatement("INSERT INTO Alert (botId, convId) VALUES (?, ?)");
             stmt.setObject(1, botId);
-            stmt.setObject(2, username);
+            stmt.setObject(2, convId);
             return stmt.executeUpdate() == 1;
         }
     }
@@ -43,19 +43,6 @@ public class Database {
             stmt.setObject(1, botId);
             return stmt.executeUpdate() == 1;
         }
-    }
-
-    public ArrayList<String> getBotsByUsername(String username) throws SQLException {
-        ArrayList<String> ret = new ArrayList<>();
-        try (Connection c = newConnection()) {
-            PreparedStatement stmt = c.prepareStatement("SELECT botId FROM Alert WHERE username = ?");
-            stmt.setString(1, username);
-            ResultSet resultSet = stmt.executeQuery();
-            while (resultSet.next()) {
-                ret.add(resultSet.getString("botId"));
-            }
-        }
-        return ret;
     }
 
     public ArrayList<String> getBotsByConversation(String convId) throws SQLException {

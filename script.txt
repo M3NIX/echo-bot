@@ -1,4 +1,4 @@
 CREATE TABLE Alert (
  botId UUID NOT NULL PRIMARY KEY,
- username VARCHAR(255)
+ convId UUID NOT NULL
 );

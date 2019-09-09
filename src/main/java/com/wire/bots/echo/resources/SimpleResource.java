@@ -40,7 +40,7 @@ import java.util.UUID;
 import java.util.Objects;
 
 @Api
-@Path("/alert/{username}")
+@Path("/alert/{convId}")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class SimpleResource {
@@ -56,7 +56,7 @@ public class SimpleResource {
     @Timed
     @ApiOperation(value = "Post message on Wire")
     public Response webhook(@ApiParam("Bearer token") @NotNull @Valid @HeaderParam("Authorization") String token,
-                            @ApiParam @PathParam("username") String username,
+                            @ApiParam @PathParam("convId") String convId,
                             @ApiParam @NotNull @Valid Simple payload) {
         try {
             String challenge = String.format("Bearer %s", Service.instance.getConfig().getAlertToken());
@@ -67,33 +67,24 @@ public class SimpleResource {
                       build();
             }
 
-            try {
-                UUID botId = UUID.fromString(username);
-                for (String botId : db.getBotsByConversation(username)) {
-                  Logger.info("Following bots for alert: %s", botId);
-                  WireClient client = repo.getClient(UUID.fromString(botId));
-                  client.sendText(payload.message);
-                }
-            } catch (Exception ex) {
-              for (String botId : db.getBotsByUsername(username)) {
-                Logger.info("Following bots for alert: %s", botId);
-                WireClient client = repo.getClient(UUID.fromString(botId));
-                client.sendText(payload.message);
-              }
+            for (String botId : db.getBotsByConversation(convId)) {
+              Logger.info("Following bots for alert: %s", botId);
+              WireClient client = repo.getClient(UUID.fromString(botId));
+              client.sendText(payload.message);
             }
 
-            Logger.info("%s SimpleResource: New payload texted", username);
+            Logger.info("%s SimpleResource: New payload texted", convId);
 
             return Response.
                     accepted().
                     build();
         } catch (MissingStateException e) {
-            Logger.info("%s SimpleResource: %s", username, e);
+            Logger.info("%s SimpleResource: %s", convId, e);
             return Response.
                     status(404).
                     build();
         } catch (Exception e) {
-            Logger.error("%s SimpleResource: %s", username, e);
+            Logger.error("%s SimpleResource: %s", convId, e);
             return Response.
                     serverError().
                     build();

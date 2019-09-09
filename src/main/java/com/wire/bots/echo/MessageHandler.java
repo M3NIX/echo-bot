@@ -58,11 +58,6 @@ public class MessageHandler extends MessageHandlerBase {
         Logger.info(String.format("onNewBot: bot: %s, username: %s",
                 newBot.id,
                 newBot.origin.handle));
-        try {
-          db.insertBot(newBot.id, newBot.origin.handle);
-        } catch (Exception e){
-          Logger.error("onNewBot Error: %s", e);
-        }
 
         for (Member member : newBot.conversation.members) {
             if (member.service != null) {
@@ -81,6 +76,12 @@ public class MessageHandler extends MessageHandlerBase {
             Logger.info("onNewConversation: bot: %s, conv: %s",
                     client.getId(),
                     client.getConversationId());
+
+            try {
+              db.insertBot(client.getId(), client.getConversationId());
+            } catch (Exception e){
+              Logger.error("onNewConversation Error: %s", e);
+            }
 
             String label = "Hello! I am a Bot. I will receive notifications for you";
             client.sendText(label);
