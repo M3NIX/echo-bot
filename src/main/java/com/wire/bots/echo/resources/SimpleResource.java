@@ -67,10 +67,16 @@ public class SimpleResource {
                       build();
             }
 
-            for (String botId : db.getBotsByUsername(username)) {
-              Logger.info("Following bots for alert: %s", botId);
-              WireClient client = repo.getClient(UUID.fromString(botId));
-              client.sendText(payload.message);
+            try {
+                UUID botId = UUID.fromString(username);
+                WireClient client = repo.getClient(botId);
+                client.sendText(payload.message);
+            } catch (Exception ex) {
+              for (String botId : db.getBotsByUsername(username)) {
+                Logger.info("Following bots for alert: %s", botId);
+                WireClient client = repo.getClient(UUID.fromString(botId));
+                client.sendText(payload.message);
+              }
             }
 
             Logger.info("%s SimpleResource: New payload texted", username);
